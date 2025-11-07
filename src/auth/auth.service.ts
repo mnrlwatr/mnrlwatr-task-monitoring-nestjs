@@ -1,11 +1,15 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { Knex } from 'knex';
 import { InjectConnection } from 'nest-knexjs';
 import { RegisterDto } from './dto/register.dto';
 import { RahbarService } from 'src/rahbar/rahbar.service';
 import { UserRole } from './dto/user.enum';
 import { CreateRahbarDto } from 'src/rahbar/dto/create-rahbar.dto';
-import { hash } from 'argon2';
+import { hash, verify } from 'argon2';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { SignInDto } from './dto/signin.dto';
@@ -34,7 +38,16 @@ export class AuthService {
 
   async signIn(dto: SignInDto) {
     const { email, password } = dto;
-    const rahbar = await this.rahbarService.findByEmail(dto.email);
+    const rahbar = await this.rahbarService.findByEmail(email);
+    if (!rahbar) {
+      throw new NotFoundException(`User with email:${email} not found`);
+    }
+    const isValidPassword = await verify(rahbar.password, password);
+    if (isValidPassword) {
+      return this.generateTokens(email);
+    } else {
+      throw new NotFoundException('Invalid password');
+    }
   }
 
   private generateTokens(email: string) {
