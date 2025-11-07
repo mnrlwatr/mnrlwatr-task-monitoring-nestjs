@@ -33,7 +33,8 @@ export class AuthService {
   }
 
   async signIn(dto: SignInDto) {
-    //const rahbar = await this.rahbarService.findByEmail(dto.email);
+    const { email, password } = dto;
+    const rahbar = await this.rahbarService.findByEmail(dto.email);
   }
 
   private generateTokens(email: string) {

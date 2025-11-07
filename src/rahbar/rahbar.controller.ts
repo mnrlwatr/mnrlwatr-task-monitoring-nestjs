@@ -32,10 +32,9 @@ export class RahbarController {
     return this.rahbarService.findOne(+id);
   }
 
-  @Get('/by/:email')
+  @Get('/byEmail/:email')
   async findbyEmail(@Param('email') email: string) {
-    const rahbar = await this.rahbarService.findByEmail(email);
-    return rahbar??(()=>{throw new NotFoundException('Rahbar Not Found')})();; 
+    return await this.rahbarService.findByEmail(email); 
   }
 
   @Patch(':id')

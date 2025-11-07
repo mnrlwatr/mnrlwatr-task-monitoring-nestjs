@@ -18,20 +18,27 @@ export class RahbarService {
     }
   }
 
-  findAll() {
-    return `This action returns all rahbar`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} rahbar`;
-  }
-
-  async findByEmail(email: string): Promise<Rahbar | undefined> {
+  async findAll() {
     try {
-      const data = await this.knex<Rahbar>('rahbarlar')
-        .select()
-        .where({ email });
-      return data[0];
+      return await this.knex<Rahbar>('rahbarlar').select();
+    } catch (error) {
+      console.error(error);
+      throw new InternalServerErrorException();
+    }
+  }
+
+  async findOne(id: number) {
+    try {
+      return await this.knex<Rahbar>('rahbarlar').where('id', id).first();
+    } catch (error) {
+      console.error(error);
+      throw new InternalServerErrorException();
+    }
+  }
+
+  async findByEmail(email: string) {
+    try {
+      return await this.knex<Rahbar>('rahbarlar').where('email', email).first();
     } catch (error) {
       console.error(error);
       throw new InternalServerErrorException();

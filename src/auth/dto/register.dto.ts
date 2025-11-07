@@ -1,4 +1,12 @@
-import { IsDefined, IsEmail, IsInt, IsNotEmpty, IsString, Max, Min } from 'class-validator';
+import {
+  IsDefined,
+  IsEmail,
+  IsInt,
+  IsNotEmpty,
+  IsString,
+  Max,
+  Min,
+} from 'class-validator';
 import { UserRole } from './user.enum';
 
 export class RegisterDto {

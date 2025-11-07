@@ -1,21 +1,17 @@
-import {
-  IsDefined,
-  IsEmail,
-  IsInt,
-  IsNotEmpty,
-  IsString,
-} from 'class-validator';
+import { IsDefined, IsEmail, IsNotEmpty, IsString } from 'class-validator';
 
 export class SignInDto {
-  @IsInt()
-  id: number;
+  @IsDefined()
+  @IsNotEmpty()
+  @IsEmail()
+  email: string;
   @IsDefined()
   @IsNotEmpty()
   @IsString()
-  userName: string;
+  password: string;
 
-  constructor(id: number, userName: string) {
-    this.id = id;
-    this.userName = userName;
+  constructor(email: string, password: string) {
+    this.email = email;
+    this.password = password;
   }
 }
