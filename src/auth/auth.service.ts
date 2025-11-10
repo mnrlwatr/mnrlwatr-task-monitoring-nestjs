@@ -13,8 +13,7 @@ import { hash, verify } from 'argon2';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { SignInDto } from './dto/signin.dto';
-import { JwtPaylod } from './interfaces/jwt.interface';
-import { Response } from 'express';
+import type { Response } from 'express';
 import { isDev } from 'src/utils/is-dev.util';
 
 @Injectable()
@@ -38,7 +37,7 @@ export class AuthService {
     this.COOKIE_DOMAIN = configService.getOrThrow<string>('COOKIE_DOMAIN');
   }
 
-  async signIn(dto: SignInDto) {
+  async signIn(res: Response, dto: SignInDto) {
     const { email, password } = dto;
     const rahbar = await this.rahbarService.findByEmail(email);
     if (!rahbar) {
@@ -46,10 +45,16 @@ export class AuthService {
     }
     const isValidPassword = await verify(rahbar.password, password);
     if (isValidPassword) {
-      return this.generateTokens(email);
+      return this.auth(res, email);
     } else {
       throw new NotFoundException('Invalid password');
     }
+  }
+
+  private auth(res: Response, email: string) {
+    const { accessToken, refreshToken } = this.generateTokens(email);
+    this.setCookie(res, refreshToken, new Date(60 * 60 * 24 * 5));
+    return accessToken;
   }
 
   private generateTokens(email: string) {
@@ -73,7 +78,7 @@ export class AuthService {
     };
   }
 
-  async register(dto: RegisterDto) {
+  async register(res: Response, dto: RegisterDto) {
     if (dto.userRole === UserRole.Rahbar) {
       const rahbar: CreateRahbarDto = {
         firstname: dto.firstname,
@@ -81,12 +86,13 @@ export class AuthService {
         email: dto.email,
         password: await hash(dto.password),
       };
-      return await this.registerRahbar(rahbar);
+      return await this.registerRahbar(res, rahbar);
     } else if (dto.userRole === UserRole.Hodim) {
+      // todo:
     }
   }
 
-  private async registerRahbar(dto: CreateRahbarDto) {
+  private async registerRahbar(res: Response, dto: CreateRahbarDto) {
     const { email } = dto;
     const rahbar = await this.rahbarService.findByEmail(email);
 
@@ -94,7 +100,7 @@ export class AuthService {
       throw new ConflictException(`Rahbar with email:${email} is registered`);
     } else {
       await this.rahbarService.create(dto);
-      return this.generateTokens(email);
+      return this.auth(res, email);
     }
   }
 
@@ -106,5 +112,7 @@ export class AuthService {
       secure: !isDev(this.configService),
       sameSite: isDev(this.configService) ? 'none' : 'lax',
     });
+
+    console.log('READED COOKIE' + this.COOKIE_DOMAIN);
   }
 }

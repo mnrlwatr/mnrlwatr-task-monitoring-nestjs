@@ -8,6 +8,7 @@ import { ProjectModule } from './project/project.module';
 import { AuthModule } from './auth/auth.module';
 import { RahbarModule } from './rahbar/rahbar.module';
 import { HodimModule } from './hodim/hodim.module';
+import { AdminStatisticsModule } from './admin-statistics/admin-statistics.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { HodimModule } from './hodim/hodim.module';
     AuthModule,
     RahbarModule,
     HodimModule,
+    AdminStatisticsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
