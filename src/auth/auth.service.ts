@@ -53,7 +53,11 @@ export class AuthService {
 
   private auth(res: Response, email: string) {
     const { accessToken, refreshToken } = this.generateTokens(email);
-    this.setCookie(res, refreshToken, new Date(60 * 60 * 24 * 5));
+    this.setCookie(
+      res,
+      refreshToken,
+      new Date(Date.now() + 1000 * 60 * 60 * 24 * 5),
+    );
     return accessToken;
   }
 
